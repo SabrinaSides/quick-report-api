@@ -1,5 +1,5 @@
 {
-  "name": "quick-report-server",
+  "name": "quick-report-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,6 +11,9 @@
     "deploy": "git push heroku main"
   },
   "keywords": [],
+  "engines": {
+    "node": "14.15.4"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
