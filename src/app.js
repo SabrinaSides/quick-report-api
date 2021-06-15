@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
+const reportsRouter = require('./reports-router')
 
 const app = express();
 
@@ -16,6 +17,8 @@ app.use(cors());
 app.get('/', (req, res) => {
   res.send('Hello, world!');
 });
+
+app.use('/api/reports', reportsRouter)
 
 app.use(function errorHandler(error, req, res, next) {
   let response;
