@@ -1,7 +1,7 @@
 const express = require('express')
-//const ReportsService = require('./reports-service')
 const xss = require('xss')
 const path = require('path')
+const ReportsService = require('./reports-service')
 
 const reportsRouter = express.Router()
 const jsonParser = express.json() //used to parse body content
@@ -11,14 +11,33 @@ const jsonParser = express.json() //used to parse body content
 reportsRouter 
     .route('/')
     .get((req, res, next) => {
-        res.send('You are starting your endpoints!')
+        const knexInstance = req.app.get('db')
+        ReportsService.getAllReports(knexInstance)
+            .then(reports => {
+                res.json(reports)
+            })
+            .catch(next)
     })
 
 reportsRouter
     .route('/:report_id')
-    //.all()
+    .all((req, res, next) => {
+        knexInstance = req.app.get('db')
+        const {report_id} = req.params
+
+        ReportsService.getById(knexInstance, report_id)
+            .then(report => {
+                if(!report){
+                    return res.status(404).json({
+                        error: {message: `Report doesn't exist`}
+                    })                }
+                res.report = report
+                next()
+            })
+            .catch(next)
+    })
     .get((req, res, next) => {
-        res.send('this will be a specific report')
+        res.json(res.report)
     })
 
 module.exports = reportsRouter
