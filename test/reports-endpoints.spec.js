@@ -154,4 +154,46 @@ describe('Reports Endpoints', () => {
             })
         })
     })
+
+    describe('PATCH /api/reports/:pt_id', () => {
+        context('Given no articles', () => {
+            it('responds with 404', () => {
+                const ptId = 123
+                return supertest(app)
+                    .patch(`/api/reports/${ptId}`)
+                    .expect(404, { error: {message: `Report doesn't exist`}})
+            })
+        })
+
+        context('Given there are reports in the database', () => {
+            const testReports = makeReportsArray()
+
+            beforeEach('insert reports', () => {
+                return db.into('quickreport_reports')
+                    .insert(testReports)
+            })
+
+            it('responds with 204 and updates the report', () => {
+                const reportToUpdate = 2
+                const updatedReport = {
+                    gu: 'foley',
+                    last_bm: '6/16/2021'
+                }
+                const expectedReport = {
+                    ...testReports[reportToUpdate - 1],
+                    ...updatedReport
+                }
+
+                return supertest(app)
+                    .patch(`/api/reports/${reportToUpdate}`)
+                    .send(updatedReport)
+                    .expect(204)
+                    .then(res => 
+                        supertest(app)
+                            .get(`/api/reports/${reportToUpdate}`)
+                            .expect(expectedReport)
+                        )
+            })
+        })
+    })
 })

@@ -25,6 +25,12 @@ const ReportsService = {
       return knex.from('quickreport_reports')
       .where({pt_id})
       .delete()
+  },
+
+  updateReport(knex, pt_id, newReportFields){
+      return knex.from('quickreport_reports')
+        .where({pt_id})
+        .update(newReportFields)
   }
 };
 
