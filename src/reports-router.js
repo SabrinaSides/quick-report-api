@@ -1,43 +1,121 @@
-const express = require('express')
-const xss = require('xss')
-const path = require('path')
-const ReportsService = require('./reports-service')
+const express = require('express');
+const xss = require('xss');
+const path = require('path');
+const ReportsService = require('./reports-service');
 
-const reportsRouter = express.Router()
-const jsonParser = express.json() //used to parse body content
+const reportsRouter = express.Router();
+const jsonParser = express.json(); //used to parse body content
 
 //const serializeReport goes here
 
-reportsRouter 
-    .route('/')
-    .get((req, res, next) => {
-        const knexInstance = req.app.get('db')
-        ReportsService.getAllReports(knexInstance)
-            .then(reports => {
-                res.json(reports)
-            })
-            .catch(next)
-    })
+reportsRouter
+  .route('/')
+  .get((req, res, next) => {
+    const knexInstance = req.app.get('db');
+    ReportsService.getAllReports(knexInstance)
+      .then((reports) => {
+        res.json(reports);
+      })
+      .catch(next);
+  })
+  .post(jsonParser, (req, res, next) => {
+    const knexInstance = req.app.get('db');
+    const {
+      room_number,
+      pt_initials,
+      diagnosis,
+      allergies,
+      age,
+      gender,
+      code_status,
+      a_o,
+      pupils,
+      other_neuro,
+      heart_rhythm,
+      bp,
+      edema,
+      other_cardiac,
+      lung_sounds,
+      oxygen,
+      other_resp,
+      last_bm,
+      gu,
+      other_gi_gu,
+      skin,
+      iv_access,
+      additional_report,
+      user_id
+    } = req.body;
+    const newReport = {
+      room_number,
+      pt_initials,
+      diagnosis,
+      allergies,
+      age,
+      gender,
+      code_status,
+      a_o,
+      pupils,
+      other_neuro,
+      heart_rhythm,
+      bp,
+      edema,
+      other_cardiac,
+      lung_sounds,
+      oxygen,
+      other_resp,
+      last_bm,
+      gu,
+      other_gi_gu,
+      skin,
+      iv_access,
+      additional_report,
+      user_id
+    };
+
+    if (room_number == null || pt_initials == null || user_id == null)
+      return res.status(400).json({
+        error: { message: `Missing required info in request body` },
+      });
+
+      ReportsService.insertReport(knexInstance, newReport)
+        .then(report => {
+            res.status(201)
+                .location(path.posix.join(req.originalUrl, `/${report.pt_id}`))
+                .json(report)
+        })
+        .catch(next)
+  });
 
 reportsRouter
-    .route('/:report_id')
-    .all((req, res, next) => {
-        knexInstance = req.app.get('db')
-        const {report_id} = req.params
+  .route('/:pt_id')
+  .all((req, res, next) => {
+    knexInstance = req.app.get('db');
+    const { pt_id } = req.params;
 
-        ReportsService.getById(knexInstance, report_id)
-            .then(report => {
-                if(!report){
-                    return res.status(404).json({
-                        error: {message: `Report doesn't exist`}
-                    })                }
-                res.report = report
-                next()
-            })
-            .catch(next)
-    })
-    .get((req, res, next) => {
-        res.json(res.report)
-    })
+    ReportsService.getById(knexInstance, pt_id)
+      .then((pt) => {
+        if (!pt) {
+          return res.status(404).json({
+            error: { message: `Report doesn't exist` },
+          });
+        }
+        res.pt = pt;
+        next();
+      })
+      .catch(next);
+  })
+  .get((req, res, next) => {
+    res.json(res.pt)
+  })
+  .delete((req, res, next) => {
+      const {pt_id} = req.params
 
-module.exports = reportsRouter
+      ReportsService.deleteReport(knexInstance, pt_id)
+        .then(() => {
+            res.status(204).end()
+        })
+        .catch(next)
+  })
+
+module.exports = reportsRouter;

@@ -24,4 +24,4 @@ CREATE TABLE quickreport_reports (
     IV_access TEXT,
     additional_report TEXT,
     user_id INTEGER REFERENCES quickreport_users(user_id) ON DELETE CASCADE NOT NULL
-);
+)
