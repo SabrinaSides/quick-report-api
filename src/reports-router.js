@@ -6,7 +6,33 @@ const ReportsService = require('./reports-service');
 const reportsRouter = express.Router();
 const jsonParser = express.json(); //used to parse body content
 
-//const serializeReport goes here
+const serializeReport = report => ({
+    pt_id: report.pt_id,
+    room_number: xss(report.room_number),
+      pt_initials: xss(report.pt_initials),
+      diagnosis: xss(report.diagnosis),
+      allergies: xss(report.allergies),
+      age: xss(report.age),
+      gender: report.gender,
+      code_status: report.code_status,
+      a_o: report.a_o,
+      pupils: report.pupils,
+      other_neuro: xss(report.other_neuro),
+      heart_rhythm: xss(report.heart_rhythm),
+      bp: xss(report.bp),
+      edema: xss(report.edema),
+      other_cardiac: xss(report.other_cardiac),
+      lung_sounds: xss(report.lung_sounds),
+      oxygen: xss(report.oxygen),
+      other_resp: xss(report.other_resp),
+      last_bm: xss(report.last_bm),
+      gu: xss(report.gu),
+      other_gi_gu: xss(report.other_gi_gu),
+      skin: xss(report.skin),
+      iv_access: xss(report.iv_access),
+      additional_report: xss(report.additional_report),
+      user_id: report.user_id
+})
 
 reportsRouter
   .route('/')
@@ -14,7 +40,7 @@ reportsRouter
     const knexInstance = req.app.get('db');
     ReportsService.getAllReports(knexInstance)
       .then((reports) => {
-        res.json(reports);
+        res.json(reports.map(serializeReport));
       })
       .catch(next);
   })
@@ -83,7 +109,7 @@ reportsRouter
         res
           .status(201)
           .location(path.posix.join(req.originalUrl, `/${report.pt_id}`))
-          .json(report);
+          .json(serializeReport(report));
       })
       .catch(next);
   });
@@ -107,7 +133,7 @@ reportsRouter
       .catch(next);
   })
   .get((req, res, next) => {
-    res.json(res.pt);
+    res.json(serializeReport(res.pt));
   })
   .delete((req, res, next) => {
     const { pt_id } = req.params;
