@@ -210,7 +210,7 @@ reportsRouter
       });
     }
 
-    ReportsService.updateReport(knexInstance, pt_id, reportToUpdate)
+    ReportsService.updateReport(knexInstance, pt_id, serializeReport(reportToUpdate))
       .then((numRowsAffected) => {
         res.status(204).end();
       })
