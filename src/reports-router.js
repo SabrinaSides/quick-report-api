@@ -4,7 +4,7 @@ const path = require('path');
 const ReportsService = require('./reports-service');
 
 const reportsRouter = express.Router();
-const jsonParser = express.json(); //used to parse body content
+const jsonParser = express.json();
 
 const serializeReport = report => ({
     pt_id: report.pt_id,
